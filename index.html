@@ -68,10 +68,38 @@
       transition: transform .25s; opacity: 0;
     }
     #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .card[hidden] { display: none; }
+    #overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      background: var(--bg);
+      z-index: 10;
+      transition: opacity .3s;
+    }
+    #overlay.gone { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid rgba(56,189,248,.2);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    #overlay p { color: var(--text); font-size: 1.1rem; font-weight: 600; }
   </style>
 </head>
 <body>
-  <main class="card">
+  <div id="overlay">
+    <div class="spinner"></div>
+    <p>Conectando…</p>
+  </div>
+  <main class="card" hidden>
     <h1>WiFi del Estudio</h1>
     <div class="net" id="net">Cargando red…</div>
     <div class="week" id="week"></div>

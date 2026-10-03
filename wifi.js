@@ -6,9 +6,12 @@ const el = {
   connect: document.getElementById("connect"),
   updated: document.getElementById("updated"),
   toast: document.getElementById("toast"),
+  overlay: document.getElementById("overlay"),
+  card: document.querySelector(".card"),
 };
 
 let current = null;
+let revealed = false;
 
 function toast(msg) {
   el.toast.textContent = msg;
@@ -41,11 +44,24 @@ el.copy.addEventListener("click", async () => {
   }
 });
 
-el.connect.addEventListener("click", () => {
-  if (!current || !current.password) return;
+function isReady() {
+  return !!current && !!current.password && current.password !== "PENDIENTE";
+}
+
+function tryConnect() {
+  if (!isReady()) return;
   const uri = `WIFI:S:${current.ssid};T:WPA;P:${current.password};;`;
-  window.location.href = uri;
-});
+  try { window.location.href = uri; } catch (e) {}
+}
+
+function reveal() {
+  if (revealed) return;
+  revealed = true;
+  el.card.hidden = false;
+  el.overlay.classList.add("gone");
+}
+
+el.connect.addEventListener("click", tryConnect);
 
 fetch("wifi.json", { cache: "no-store" })
   .then((r) => {
@@ -53,4 +69,12 @@ fetch("wifi.json", { cache: "no-store" })
     return r.json();
   })
   .then(render)
-  .catch(() => render({ ssid: "Rojas-Rosero", password: "No disponible", week: "", updatedAt: null }));
+  .catch(() => render({ ssid: "Rojas-Rosero", password: "No disponible", week: "", updatedAt: null }))
+  .finally(() => {
+    if (isReady()) {
+      tryConnect();
+      setTimeout(reveal, 2500);
+    } else {
+      reveal();
+    }
+  });
